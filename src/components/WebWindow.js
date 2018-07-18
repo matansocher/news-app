@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { View, WebView } from 'react-native';
 
-const WebWindow = ({ url }) => {
+const WebWindow = ({ url, style }) => {
   return (
-    <View>
+    <View style={style}>
       <WebView
         source={{ uri: url }}
-        style={{  }}
+        style={{ flex: 1 }}
       />
     </View>
   );

@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { API_KEY } from '../config';
 import {
   CHANGE_THEME,
-  FETCH_ARTICLES
+  FETCH_ARTICLES_SUCESS,
+  FETCH_ARTICLES_FAILED
 } from '../actions/types';
 import { lightTheme, darkTheme } from '../CONSTANTS';
+import { createAPIparams } from './CommonFunctions';
 
 
 const BASE_URL = `https://newsapi.org/v2/top-headlines?apiKey=${API_KEY}`;
@@ -27,28 +29,25 @@ export function actionChangeTheme(isDark) {
   }
 }
 
-export function actionFetchNews(callback) {
-  let friendsArray = [];
+export function actionFetchNews(parametersArray, callbackSucess, callbackFailed) {
+  const parametersToURL = createAPIparams(parametersArray);
   return dispatch => {
-    fire.database().ref(`friendships/${uid}`).once('value', friendsSnap => {
-      const friends = friendsSnap.val() || {};
-      Object.keys(friends).map((objectkey) => {
-        const { key, lastMessage, pinned, isUnraed, isTyping } = friends[objectkey];
-        const friend = { key, lastMessage, pinned, isUnraed, isTyping };
-        fire.database().ref(`users/${key}`).once('value', friendSnap => {
-          friend.info = friendSnap.val();
-          // console.log(friend)
-          friendsArray.push(friend);
+    axios.get(`${BASE_URL}${parametersToURL}`)
+      .then(response => {
+        const data = response.json().then((data) => {
+          dispatch({
+            type: FETCH_ARTICLES_SUCESS,
+            payload: orderBy(data.articles, 'publishedAt', 'desc')
+          });
+          callbackSucess();
+        })
+      }).catch((error) => {
+        dispatch({
+          type: FETCH_ARTICLES_FAILED,
+          payload: []
         });
-        return friend;
+        callbackFailed();
       });
-    }).then(() => {
-      dispatch({
-        type: FETCH_ARTICLES,
-        payload: articles
-      });
-      callback();
-    });
   }
 }
 

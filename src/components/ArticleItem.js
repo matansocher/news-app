@@ -3,20 +3,24 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { getUpdatedTime } from '../actions/CommonFunctions';
 
 import ArticleAvatar from './ArticleAvatar';
+import DividerContacts from './DividerContacts';
 
 const ArticleItem = ({ article, theme, openArticle }) => {
-  const { title, description, url, urlToImage, publishedAt } = article;
-  const { primaryColor, primaryBackgroundColor } = this.props.theme;
+  const { title, description, url, urlToImage, publishedAt, source } = article;
+  const { primaryColor, primaryBackgroundColor } = theme;
 
   articlePress = () => {
-    this.props.openArticle(url);
+    openArticle(url);
   }
 
   return (
     <View onPress={this.articlePress}>
       <View style={[styles.container, { backgroundColor: primaryBackgroundColor }]}>
-        <ArticleAvatar avatar={urlToImage} />
-        <View>
+        <ArticleAvatar avatar={urlToImage} style={styles.avatarStyle} />
+        <View style={styles.contentStyle}>
+          <Text style={[styles.sourceStyle, { color: primaryColor }]}>
+            {source.name}
+          </Text>
           <Text style={[styles.titleStyle, { color: primaryColor }]}>
             {title}
           </Text>
@@ -28,6 +32,7 @@ const ArticleItem = ({ article, theme, openArticle }) => {
           </Text>
         </View>
       </View>
+      <DividerContacts color={primaryColor} />
     </View>
   );
 }
@@ -53,14 +58,28 @@ const styles = {
     borderColor: 'white',
     borderRadius: 10,
   },
+  contentStyle: {
+    flex: 6
+  },
+  avatarStyle: {
+    flex: 1
+  },
   titleStyle: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   descriptionStyle: {
-
+    fontSize: 14,
+  },
+  sourceStyle: {
+    fontSize: 12,
+    top: 0,
+    right: 0
   },
   timeStyle: {
-
+    fontSize: 12,
+    bottom: 0,
+    right: 0
   }
 };
 

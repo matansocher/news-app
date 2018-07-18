@@ -4,7 +4,7 @@ import { List } from 'react-native-elements';
 import { connect } from 'react-redux';
 import * as actions from '../actions/index';
 import _ from 'lodash';
-import {  } from '../actions/CommonFunctions'
+import { } from '../actions/CommonFunctions'
 
 import ArticleItem from '../components/ArticleItem';
 import WebWindow from '../components/WebWindow';
@@ -16,7 +16,8 @@ class NewsScreen extends Component {
     super(props);
     this.state = {
       searchTerm: '',
-      loading: false
+      loading: false,
+      error: false
     }
   }
 
@@ -34,23 +35,43 @@ class NewsScreen extends Component {
 
   fetchData = (uid) => {
     this.setState({ loading: true }, () => {
-      this.props.actionFetchNews(() => {
-        this.setState({ loading: false });
-      });
+      this.props.actionFetchNews([], this.callbackSucess, this.callbackFailed);
+    });
+  }
+
+  callbackSucess = () => {
+    this.setState({ loading: false, error: '' })
+  }
+
+  callbackFailed = () => {
+    this.setState({ 
+      loading: false, 
+      error: 'Oops, something went wrong, please try again' 
     });
   }
 
   openArticle = (url) => {
-    
+
   }
 
   navigateToRoute = (route) => {
     this.props.navigation.navigate(route);
   }
 
+  renderError() {
+    const { primaryColor, primaryBackgroundColor } = this.props.theme;
+    return (
+      <View style={{ backgroundColor: primaryBackgroundColor }}>
+        <Text style={[styles.errorText, { color: primaryColor }]}>
+          {this.state.error}
+        </Text>
+      </View>
+    )
+  }
+
   renderArticles() {
-    if (_.isEmpty(this.props.articles) || this.state.loading) {
-      return (<CircularProgress />);
+    if (_.isEmpty(this.props.articles)) {
+      return (<View />);
     }
     return (
       this.props.articles.map(contact => {
@@ -68,6 +89,7 @@ class NewsScreen extends Component {
       <View style={[styles.container, { backgroundColor: primaryBackgroundColor }]}>
         <ScrollView>
           {this.state.loading ? <CircularProgress /> : <View />}
+          {this.state.error = '' ? this.renderError() : <View />}
           <List>
             {this.renderArticles()}
           </List>
@@ -81,6 +103,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 25,
+  },
+  errorText: {
+    padding: 20,
+    fontSize: 30
   }
 });
 

@@ -2,16 +2,16 @@ import React from 'react';
 import { View } from 'react-native';
 import { Thumbnail } from 'native-base';
 
-const ArticleAvatar = ({ avatar }) => {
+const ArticleAvatar = ({ avatar, style }) => {
 
   return (
-    <View style={style}>
+    <View style={[style, styleTwo]}>
       <Thumbnail source={avatar} style={style} />
     </View>
   );
 }
 
-const style ={
+const styleTwo ={
   padding: 5
 }
 

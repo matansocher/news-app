@@ -1,16 +1,24 @@
 import React, { Component } from 'react';
 import { AsyncStorage, StyleSheet, View, Text, Button, ScrollView } from 'react-native';
-import { List } from 'react-native-elements';
+import { List, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
-import * as actions from '../actions/index';
+import * as actions from '../actions';
 import _ from 'lodash';
 import { } from '../actions/CommonFunctions'
 
+import NewsTopMenu from '../components/NewsTopMenu';
 import ArticleItem from '../components/ArticleItem';
 import WebWindow from '../components/WebWindow';
-import CircularProgress from '../components/common/CircularProgress';
+import CircularProgress from '../components/CircularProgress';
 
 class NewsScreen extends Component {
+
+  static navigationOptions = {
+    title: 'News',
+    tabBarIcon: ({ tintColor }) => {
+      return <Icon name="chat" size={30} color={tintColor} />;
+    }
+  }
 
   constructor(props) {
     super(props);
@@ -33,21 +41,30 @@ class NewsScreen extends Component {
     this.props.actionChangeTheme(theme);
   }
 
-  fetchData = (uid) => {
+  fetchData = () => {
     this.setState({ loading: true }, () => {
-      this.props.actionFetchNews([], this.callbackSucess, this.callbackFailed);
+      this.props.actionFetchNews(
+        ['country', 'il', 'category', 'general'],
+        this.callbackSucess,
+        this.callbackFailed);
     });
   }
 
   callbackSucess = () => {
-    this.setState({ loading: false, error: '' })
+    this.setState({ loading: false, error: '' });
+    this.refs.newsScrollView.scrollTo({ x: 0, y: 0, animated: true });
   }
 
   callbackFailed = () => {
-    this.setState({ 
-      loading: false, 
-      error: 'Oops, something went wrong, please try again' 
-    });
+    this.setState({
+      loading: false,
+      error: 'Oops, something went wrong, please try again'
+    }, () => {
+      setTimeout(() => {
+        this.setState({ error: '' })
+      }, 4000)
+    }
+  );
   }
 
   openArticle = (url) => {
@@ -56,6 +73,15 @@ class NewsScreen extends Component {
 
   navigateToRoute = (route) => {
     this.props.navigation.navigate(route);
+  }
+
+  fetchNewsByCategory = (category) => {
+    this.setState({ loading: true }, () => {
+      this.props.actionFetchNews(
+        ['country', 'il', 'category', category],
+        this.callbackSucess,
+        this.callbackFailed);
+    })
   }
 
   renderError() {
@@ -74,8 +100,8 @@ class NewsScreen extends Component {
       return (<View />);
     }
     return (
-      this.props.articles.map(contact => {
-        return <ArticleItem key={contact.info.email}
+      this.props.articles.map(article => {
+        return <ArticleItem key={article.url}
           article={article}
           theme={this.props.theme}
           openArticle={this.openArticle} />
@@ -84,16 +110,32 @@ class NewsScreen extends Component {
   }
 
   render() {
-    const { primaryBackgroundColor } = this.props.theme;
+    const { primaryColor, primaryBackgroundColor } = this.props.theme;
     return (
       <View style={[styles.container, { backgroundColor: primaryBackgroundColor }]}>
-        <ScrollView>
-          {this.state.loading ? <CircularProgress /> : <View />}
-          {this.state.error = '' ? this.renderError() : <View />}
-          <List>
-            {this.renderArticles()}
-          </List>
-        </ScrollView>
+
+        <View style={[styles.headerContainer, { backgroundColor: primaryBackgroundColor }]}>
+          <Text style={[styles.headerText, { color: primaryColor }]}>
+            Daily News
+          </Text>
+        </View>
+
+        <View style={styles.menuContainer}>
+          <NewsTopMenu
+            theme={this.props.theme}
+            buttonAction={this.fetchNewsByCategory} />
+        </View>
+
+        <View style={styles.contentContainer}>
+          <ScrollView ref='newsScrollView'>
+            {this.state.loading ? <CircularProgress /> : <View />}
+            {this.state.error !== '' ? this.renderError() : <View />}
+            <List>
+              {this.renderArticles()}
+            </List>
+          </ScrollView>
+        </View>
+
       </View>
     );
   }
@@ -104,9 +146,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 25,
   },
+  headerContainer: {
+    flex: 1,
+    padding: 10
+  },
+  headerText: {
+    fontSize: 40
+  },
+  menuContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 6
+  },
   errorText: {
     padding: 20,
-    fontSize: 30
+    fontSize: 25
   }
 });
 

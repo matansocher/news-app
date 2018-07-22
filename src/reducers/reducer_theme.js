@@ -1,6 +1,6 @@
 // import _ from 'lodash';
 import { CHANGE_THEME } from '../actions/types';
-import { darkTheme } from '../CONSTANTS';
+import { darkTheme } from '../actions/CONSTANTS';
 
 const INITIAL_STATE = darkTheme;
 

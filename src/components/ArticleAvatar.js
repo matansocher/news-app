@@ -1,17 +1,22 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Thumbnail } from 'native-base';
+import { Avatar } from 'react-native-elements';
 
-const ArticleAvatar = ({ avatar, style }) => {
-
+const ArticleAvatar = ({ uri, style }) => {
+  uri = uri || 'http://www.globalmarine.co.uk/uploads/images/default-news-image.jpg';
   return (
     <View style={[style, styleTwo]}>
-      <Thumbnail source={avatar} style={style} />
+      <Avatar
+        large
+        rounded
+        source={{ uri }}
+      />
+      {/* <Thumbnail source={{ uri }} style={style} /> */}
     </View>
   );
 }
 
-const styleTwo ={
+const styleTwo = {
   padding: 5
 }
 
